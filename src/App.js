@@ -37,12 +37,17 @@ function App() {
   const handleAddOrUpdate = async () => {
     if (!name) {
       setError("กรุณากรอกชื่อรายการ");
-      return;
+ 
+    }
+    else{
+      setError("");
     }
 
     if (!dateStart) {
       setDateerror("กรุณาเลือกวันที่เริ่ม");
-      return;
+      
+    }else{
+      setDateerror("");
     }
 
     if (editId !== null) {
