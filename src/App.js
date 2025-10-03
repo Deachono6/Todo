@@ -23,6 +23,8 @@ function App() {
   const [name, setName] = useState("");
   const [dateStart, setDateStart] = useState("");
   const [editId, setEditId] = useState(null);
+  const [error, setError] = useState("");
+  const [dateerror, setDateerror] = useState("");
 
   const fetchTodos = async () => {
     try {
@@ -33,7 +35,15 @@ function App() {
     }
   };
   const handleAddOrUpdate = async () => {
-    if (!name || !dateStart) return;
+    if (!name) {
+      setError("กรุณากรอกชื่อรายการ");
+      return;
+    }
+
+    if (!dateStart) {
+      setDateerror("กรุณาเลือกวันที่เริ่ม");
+      return;
+    }
 
     if (editId !== null) {
       // อัปเดต state
@@ -69,7 +79,8 @@ function App() {
       try {
         const response = await api.post("/", newTodo);
         console.log("Todo saved:", response.data);
-        setTodos([...todos, response.data]);
+       
+        fetchTodos();
       } catch (err) {
         console.error(err);
       }
@@ -133,14 +144,17 @@ function App() {
               type="text"
               placeholder="ชื่อรายการ"
               value={name}
+              error={!!error}
               onChange={async (e) => {
                 setName(e.target.value);
+                if (e.target.value.trim()) {
+                  setError(""); // เคลียร์ error เมื่อพิมพ์
+                }
                 try {
                   const res = await api.get("/search", {
                     params: { name: e.target.value },
                   });
                   setTodos(res?.data);
-                  
                 } catch (err) {
                   console.error(err);
                 }
@@ -150,19 +164,22 @@ function App() {
             />
             <DatePicker
               label="วันที่เริ่ม"
+              error={!!dateerror}
               value={
                 dateStart
                   ? new Date(dateStart.split("/").reverse().join("-"))
                   : null
               }
               format="dd/MM/yyyy"
-              slotProps={{ textField: { size: "small" } }}
+              slotProps={{ textField: { size: "small" ,error:dateerror} }}
               onChange={(newValue) => {
                 if (newValue) {
                   const formatted = format(newValue, "dd/MM/yyyy");
                   setDateStart(formatted);
+                  setDateerror("");
                 } else {
                   setDateStart("");
+                  setDateerror("กรุณาเลือกวันที่เริ่ม");
                 }
               }}
             />
